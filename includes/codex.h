@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/09 12:48:25 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/13 16:32:39 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/14 15:01:22 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,10 @@ struct s_hub
 	int				q_size;
 	pthread_mutex_t	queue_lock;
 	int				ticket_counter;
+	pthread_t		monitor_id;
+	long			start_time;
+	int				sim_running;
+	pthread_mutex_t	sim_lock;
 };
 
 struct s_coder
@@ -51,6 +55,7 @@ struct s_coder
 	int				r_dongle;
 	t_hub			*hub;
 	int				request_ticket;
+	pthread_t		thread_id;
 };
 
 int		ft_satoi(const char *nptr);
@@ -62,5 +67,8 @@ t_coder	*pop_queue(t_hub *hub);
 void	heapify_down(t_hub *hub, int index);
 long	get_time_ms(void);
 void	ft_usleep(long time_to_sleep);
+int		check_sim_running(t_hub *hub);
+void	*coder_routine(void *arg);
+int		start_sim(t_hub *hub, t_coder *coders);
 
 #endif

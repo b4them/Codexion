@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/07 16:05:27 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/13 16:28:20 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/14 14:59:31 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,5 +95,6 @@ int	main(int ac, char **av)
 		printf("Error: Failed to initialize coders.\n");
 		return (1);
 	}
+	start_sim(&hub, coders);
 	return (0);
 }
