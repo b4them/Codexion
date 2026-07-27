@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/14 14:55:15 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/14 14:58:39 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/15 10:43:54 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,12 @@ int	start_sim(t_hub *hub, t_coder *coders)
 	while (++i < hub->n_coders)
 	{
 		coders[i].last_compile = hub->start_time;
-		if (pthread_create(&coders[i].thread_id, NULL, coder_routine, &coders[i]) != 0)
+		if (pthread_create(&coders[i].thread_id,
+				NULL, coder_routine, &coders[i]) != 0)
 			return (1);
 	}
-	
 	i = -1;
 	while (++i < hub->n_coders)
 		pthread_join(coders[i].thread_id, NULL);
-
 	return (0);
 }

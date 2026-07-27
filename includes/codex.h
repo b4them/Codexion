@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/09 12:48:25 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/14 15:01:22 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/15 11:50:16 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ struct s_hub
 	long			start_time;
 	int				sim_running;
 	pthread_mutex_t	sim_lock;
+	long			*dongle_ready;
+	pthread_cond_t	arbitrator_cond;
 };
 
 struct s_coder
@@ -59,7 +61,6 @@ struct s_coder
 };
 
 int		ft_satoi(const char *nptr);
-
 int		compare_coders(t_coder *a, t_coder *b, t_hub *hub);
 void	push_queue(t_hub *hub, t_coder *coder);
 void	heapify_up(t_hub *hub, int index);
@@ -70,5 +71,7 @@ void	ft_usleep(long time_to_sleep);
 int		check_sim_running(t_hub *hub);
 void	*coder_routine(void *arg);
 int		start_sim(t_hub *hub, t_coder *coders);
+void	print_log(t_coder *coder, char *status);
+void	drop_dongles(t_coder *coder);
 
 #endif
