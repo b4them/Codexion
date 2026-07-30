@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/07 16:05:27 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/14 14:59:31 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/29 17:14:25 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,16 +62,20 @@ int	init_hub(t_hub *hub, char **av)
 {
 	if (parse_args(hub, av) != 0)
 		return (1);
-	if (pthread_mutex_init(&hub->print_lock, NULL) != 0)
-		return (1);
-	if (pthread_mutex_init(&hub->queue_lock, NULL) != 0)
+	if (pthread_mutex_init(&hub->print_lock, NULL) != 0
+		|| pthread_mutex_init(&hub->queue_lock, NULL) != 0
+		|| pthread_mutex_init(&hub->sim_lock, NULL) != 0
+		|| pthread_cond_init(&hub->arbitrator_cond, NULL) != 0)
 		return (1);
 	hub->dongle_locks = malloc(sizeof(pthread_mutex_t) * hub->n_coders);
 	hub->queue = malloc(sizeof(t_coder *) * hub->n_coders);
-	if (!hub->dongle_locks || !hub->queue)
+	hub->dongle_ready = malloc(sizeof(long) *hub->n_coders);
+	if (!hub->dongle_locks || !hub->queue || !hub->dongle_ready)
 		return (1);
+	memset(hub->dongle_ready, 0, sizeof(long) *hub->n_coders);
 	hub->q_size = 0;
 	hub->ticket_counter = 0;
+	hub->sim_running = 1;
 	return (0);
 }
 
@@ -96,5 +100,6 @@ int	main(int ac, char **av)
 		return (1);
 	}
 	start_sim(&hub, coders);
+	cleanup_sim(&hub, coders);
 	return (0);
 }

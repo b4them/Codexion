@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/14 11:21:49 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/15 11:53:30 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/30 10:56:23 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ void	*coder_routine(void *arg)
 		take_dongles(coder);
 		if (!check_sim_running(coder->hub))
 			break ;
+		print_log(coder, "has taken a dongle");
+		print_log(coder, "has taken a dongle");
 		print_log(coder, "is compiling");
 		coder->last_compile = get_time_ms();
 		coder->compiles++;
@@ -41,7 +43,7 @@ void	*coder_routine(void *arg)
 		drop_dongles(coder);
 		print_log(coder, "is debugging");
 		ft_usleep(coder->hub->time_to_debug);
-		print_log(coder, "is refacturing");
+		print_log(coder, "is refactoring");
 		ft_usleep(coder->hub->time_to_refactor);
 	}
 	return (NULL);
@@ -73,5 +75,32 @@ void	drop_dongles(t_coder *coder)
 	coder->hub->dongle_ready[coder->r_dongle] = (current_time
 			+ coder->hub->dongle_cooldown);
 	pthread_cond_broadcast(&coder->hub->arbitrator_cond);
+	pthread_mutex_unlock(&coder->hub->queue_lock);
+}
+
+void	take_dongles(t_coder *coder)
+{
+	pthread_mutex_lock(&coder->hub->queue_lock);
+	push_queue(coder->hub, coder);
+	while (check_sim_running(coder->hub) && !can_take_dongles(coder))
+	{
+		if (coder->hub->queue[0] == coder)
+		{
+			pthread_mutex_unlock(&coder->hub->queue_lock);
+			ft_usleep(1);
+			pthread_mutex_lock(&coder->hub->queue_lock);
+		}
+		else
+			pthread_cond_wait(&coder->hub->arbitrator_cond,
+					 &coder->hub->queue_lock);
+	}
+	if (!check_sim_running(coder->hub))
+	{
+		pthread_mutex_unlock(&coder->hub->queue_lock);
+		return ;
+	}
+	pop_queue(coder->hub);
+	pthread_mutex_lock(&coder->hub->dongle_locks[coder->l_dongle]);
+	pthread_mutex_lock(&coder->hub->dongle_locks[coder->r_dongle]);
 	pthread_mutex_unlock(&coder->hub->queue_lock);
 }

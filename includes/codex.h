@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/09 12:48:25 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/15 11:50:16 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/29 17:09:05 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ struct s_hub
 struct s_coder
 {
 	int				coder_id;
-	int				last_compile;
+	long			last_compile;
 	int				compiles;
 	int				l_dongle;
 	int				r_dongle;
@@ -71,7 +71,11 @@ void	ft_usleep(long time_to_sleep);
 int		check_sim_running(t_hub *hub);
 void	*coder_routine(void *arg);
 int		start_sim(t_hub *hub, t_coder *coders);
+void	cleanup_sim(t_hub *hub, t_coder *coders);
 void	print_log(t_coder *coder, char *status);
 void	drop_dongles(t_coder *coder);
+int		can_take_dongles(t_coder *coder);
+void	take_dongles(t_coder *coder);
+void	*monitor_routine(void *arg);
 
 #endif
