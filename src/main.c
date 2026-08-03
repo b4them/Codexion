@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/07 16:05:27 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/29 17:14:25 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/30 13:35:38 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,11 @@ int	init_coders(t_hub *hub, t_coder **coders)
 		(*coders)[i].hub = hub;
 		(*coders)[i].l_dongle = i;
 		(*coders)[i].r_dongle = (i + 1) % hub->n_coders;
+		if (i == hub->n_coders - 1)
+		{
+			(*coders)[i].l_dongle = 0;
+			(*coders)[i].r_dongle = i;
+		}
 		i++;
 	}
 	hub->coders = *coders;

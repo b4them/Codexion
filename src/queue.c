@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 14:45:19 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/13 15:29:12 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/30 12:36:11 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,20 +56,27 @@ void	heapify_up(t_hub *hub, int index)
 	}
 }
 
-t_coder	*pop_queue(t_hub *hub)
+void remove_queue(t_hub *hub, t_coder *coder)
 {
-	t_coder	*popped;
+	int	i;
 
 	if (hub->q_size == 0)
-		return (NULL);
-	popped = hub->queue[0];
-	hub->q_size--;
-	if (hub->q_size > 0)
+		return ;
+	i = -1;
+	while (++i < hub->q_size)
 	{
-		hub->queue[0] = hub->queue[hub->q_size];
-		heapify_down(hub, 0);
+		if (hub->queue[i] == coder)
+		{
+			hub->q_size--;
+			hub->queue[i] = hub->queue[hub->q_size];
+			if (i < hub->q_size)
+			{
+				heapify_up(hub, i);
+				heapify_down(hub, i);
+			}
+			return ;
+		}
 	}
-	return (popped);
 }
 
 void	heapify_down(t_hub *hub, int index)

@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/14 14:55:15 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/29 16:35:30 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/07/30 16:34:20 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,10 @@ int	start_sim(t_hub *hub, t_coder *coders)
 	while (++i < hub->n_coders)
 	{
 		coders[i].last_compile = hub->start_time;
-		if (pthread_create(&coders[i].thread_id,
-				NULL, coder_routine, &coders[i]) != 0)
-			return (1);
+		if (hub->n_coders == 1)
+			pthread_create(&coders[i].thread_id, NULL, lone_coder, &coders[i]);
+		else
+			pthread_create(&coders[i].thread_id, NULL, coder_routine, &coders[i]);
 	}
 	if (pthread_create(&hub->monitor_id, NULL, monitor_routine, hub) != 0)
 		return (1);
@@ -49,4 +50,17 @@ void	cleanup_sim(t_hub *hub, t_coder *coders)
 	free(hub->queue);
 	free(hub->dongle_ready);
 	free(coders);
+}
+
+void	*lone_coder(void *arg)
+{
+	t_coder	*coder;
+
+	coder = (t_coder *)arg;
+	pthread_mutex_lock(&coder->hub->dongle_locks[coder->l_dongle]);
+	print_log(coder, "has taken a dongle");
+	while (check_sim_running(coder->hub))
+		ft_usleep(1);
+	pthread_mutex_unlock(&coder->hub->dongle_locks[coder->l_dongle]);
+	return (NULL);
 }
