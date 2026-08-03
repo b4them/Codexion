@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 14:45:19 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/30 12:36:11 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/08/03 10:59:38 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void	heapify_up(t_hub *hub, int index)
 	}
 }
 
-void remove_queue(t_hub *hub, t_coder *coder)
+void	remove_queue(t_hub *hub, t_coder *coder)
 {
 	int	i;
 

@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/07 16:05:27 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/30 13:35:38 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/08/03 17:19:35 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,10 +74,10 @@ int	init_hub(t_hub *hub, char **av)
 		return (1);
 	hub->dongle_locks = malloc(sizeof(pthread_mutex_t) * hub->n_coders);
 	hub->queue = malloc(sizeof(t_coder *) * hub->n_coders);
-	hub->dongle_ready = malloc(sizeof(long) *hub->n_coders);
+	hub->dongle_ready = malloc(sizeof(long) * hub->n_coders);
 	if (!hub->dongle_locks || !hub->queue || !hub->dongle_ready)
 		return (1);
-	memset(hub->dongle_ready, 0, sizeof(long) *hub->n_coders);
+	memset(hub->dongle_ready, 0, sizeof(long) * hub->n_coders);
 	hub->q_size = 0;
 	hub->ticket_counter = 0;
 	hub->sim_running = 1;
@@ -104,7 +104,8 @@ int	main(int ac, char **av)
 		printf("Error: Failed to initialize coders.\n");
 		return (1);
 	}
-	start_sim(&hub, coders);
+	if (start_sim(&hub, coders) != 0)
+		printf("Error: Simulation failed to start.\n");
 	cleanup_sim(&hub, coders);
 	return (0);
 }
