@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/07 16:05:27 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/03 17:19:35 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/08/04 14:40:01 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,16 @@ int	init_coders(t_hub *hub, t_coder **coders)
 	*coders = malloc(sizeof(t_coder) * hub->n_coders);
 	if (!(*coders))
 		return (1);
-	i = 0;
-	while (i < hub->n_coders)
+	i = -1;
+	while (++i < hub->n_coders)
 	{
 		if (pthread_mutex_init(&hub->dongle_locks[i], NULL) != 0)
+		{
+			while (--i >= 0)
+				pthread_mutex_destroy(&hub->dongle_locks[i]);
+			free(*coders);
 			return (1);
+		}
 		(*coders)[i].coder_id = i + 1;
 		(*coders)[i].compiles = 0;
 		(*coders)[i].hub = hub;
@@ -34,7 +39,6 @@ int	init_coders(t_hub *hub, t_coder **coders)
 			(*coders)[i].l_dongle = 0;
 			(*coders)[i].r_dongle = i;
 		}
-		i++;
 	}
 	hub->coders = *coders;
 	return (0);
@@ -63,6 +67,25 @@ static int	parse_args(t_hub *hub, char **av)
 	return (0);
 }
 
+static int	allocate_hub(t_hub *hub)
+{
+	hub->dongle_locks = malloc(sizeof(pthread_mutex_t) * hub->n_coders);
+	hub->queue = malloc(sizeof(t_coder *) * hub->n_coders);
+	hub->dongle_ready = malloc(sizeof(long) * hub->n_coders);
+	if (!hub->dongle_locks || !hub->queue || !hub->dongle_ready)
+	{
+		free(hub->dongle_locks);
+		free(hub->queue);
+		free(hub->dongle_ready);
+		pthread_mutex_destroy(&hub->print_lock);
+		pthread_mutex_destroy(&hub->queue_lock);
+		pthread_mutex_destroy(&hub->sim_lock);
+		pthread_cond_destroy(&hub->arbitrator_cond);
+		return (1);
+	}
+	return (0);
+}
+
 int	init_hub(t_hub *hub, char **av)
 {
 	if (parse_args(hub, av) != 0)
@@ -72,10 +95,7 @@ int	init_hub(t_hub *hub, char **av)
 		|| pthread_mutex_init(&hub->sim_lock, NULL) != 0
 		|| pthread_cond_init(&hub->arbitrator_cond, NULL) != 0)
 		return (1);
-	hub->dongle_locks = malloc(sizeof(pthread_mutex_t) * hub->n_coders);
-	hub->queue = malloc(sizeof(t_coder *) * hub->n_coders);
-	hub->dongle_ready = malloc(sizeof(long) * hub->n_coders);
-	if (!hub->dongle_locks || !hub->queue || !hub->dongle_ready)
+	if (allocate_hub(hub) != 0)
 		return (1);
 	memset(hub->dongle_ready, 0, sizeof(long) * hub->n_coders);
 	hub->q_size = 0;

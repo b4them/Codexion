@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/09 12:48:25 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/07/30 16:34:16 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/08/04 15:07:37 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,32 +32,36 @@ struct s_hub
 	int				time_to_refactor;
 	int				n_compiles;
 	int				dongle_cooldown;
-	pthread_mutex_t	print_lock;
-	pthread_mutex_t	*dongle_locks;
 	int				scheduler;
+	long			start_time;
+
 	t_coder			*coders;
 	t_coder			**queue;
-	int				q_size;
-	pthread_mutex_t	queue_lock;
-	int				ticket_counter;
-	pthread_t		monitor_id;
-	long			start_time;
-	int				sim_running;
-	pthread_mutex_t	sim_lock;
 	long			*dongle_ready;
+	pthread_mutex_t	*dongle_locks;
+
+
+	pthread_t		monitor_id;
+	int				q_size;
+	int				ticket_counter;
+	int				sim_running;
+	pthread_mutex_t	print_lock;
+	pthread_mutex_t	queue_lock;
+	pthread_mutex_t	sim_lock;
 	pthread_cond_t	arbitrator_cond;
 };
 
 struct s_coder
 {
 	int				coder_id;
-	long			last_compile;
-	int				compiles;
 	int				l_dongle;
 	int				r_dongle;
 	t_hub			*hub;
-	int				request_ticket;
+
 	pthread_t		thread_id;
+	long			last_compile;
+	int				compiles;
+	int				request_ticket;
 };
 
 int		ft_satoi(const char *nptr);
@@ -78,5 +82,6 @@ void	drop_dongles(t_coder *coder);
 int		can_take_dongles(t_coder *coder);
 void	take_dongles(t_coder *coder);
 void	*monitor_routine(void *arg);
+void	cond_wait_ms(t_hub *hub, int ms);
 
 #endif

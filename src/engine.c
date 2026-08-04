@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/14 14:55:15 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/03 11:15:35 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/08/04 11:22:07 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,11 @@ void	*lone_coder(void *arg)
 	coder = (t_coder *)arg;
 	pthread_mutex_lock(&coder->hub->dongle_locks[coder->l_dongle]);
 	print_log(coder, "has taken a dongle");
+	pthread_mutex_lock(&coder->hub->queue_lock);
 	while (check_sim_running(coder->hub))
-		ft_usleep(1);
+		pthread_cond_wait(&coder->hub->arbitrator_cond,
+					&coder->hub->queue_lock);
+	pthread_mutex_unlock(&coder->hub->queue_lock);
 	pthread_mutex_unlock(&coder->hub->dongle_locks[coder->l_dongle]);
 	return (NULL);
 }
