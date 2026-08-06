@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/07 16:05:27 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/04 14:40:01 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/08/06 11:25:54 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,7 @@ int	init_coders(t_hub *hub, t_coder **coders)
 	while (++i < hub->n_coders)
 	{
 		if (pthread_mutex_init(&hub->dongle_locks[i], NULL) != 0)
-		{
-			while (--i >= 0)
-				pthread_mutex_destroy(&hub->dongle_locks[i]);
-			free(*coders);
-			return (1);
-		}
+			return (rollback_coders(hub, *coders, i));
 		(*coders)[i].coder_id = i + 1;
 		(*coders)[i].compiles = 0;
 		(*coders)[i].hub = hub;

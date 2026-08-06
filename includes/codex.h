@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/09 12:48:25 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/04 15:07:37 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/08/06 11:25:10 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ struct s_hub
 	t_coder			**queue;
 	long			*dongle_ready;
 	pthread_mutex_t	*dongle_locks;
-
 
 	pthread_t		monitor_id;
 	int				q_size;
@@ -82,6 +81,6 @@ void	drop_dongles(t_coder *coder);
 int		can_take_dongles(t_coder *coder);
 void	take_dongles(t_coder *coder);
 void	*monitor_routine(void *arg);
-void	cond_wait_ms(t_hub *hub, int ms);
+int		rollback_coders(t_hub *hub, t_coder *coders, int i);
 
 #endif

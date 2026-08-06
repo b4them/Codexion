@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/14 11:21:49 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/04 15:09:31 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/08/05 11:32:30 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,8 @@ void	take_dongles(t_coder *coder)
 	pthread_mutex_lock(&coder->hub->queue_lock);
 	push_queue(coder->hub, coder);
 	while (check_sim_running(coder->hub) && !can_take_dongles(coder))
-		cond_wait_ms(coder->hub, 1);
+		pthread_cond_wait(&coder->hub->arbitrator_cond,
+			&coder->hub->queue_lock);
 	if (!check_sim_running(coder->hub))
 	{
 		pthread_mutex_unlock(&coder->hub->queue_lock);

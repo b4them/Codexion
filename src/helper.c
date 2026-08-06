@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/09 12:47:57 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/03 16:04:03 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/08/05 11:29:51 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,9 @@ void	*monitor_routine(void *arg)
 			trigger_burnout(hub, -1);
 			return (NULL);
 		}
+		pthread_mutex_lock(&hub->queue_lock);
+		pthread_cond_broadcast(&hub->arbitrator_cond);
+		pthread_mutex_unlock(&hub->queue_lock);
 		usleep(1000);
 	}
 	return (NULL);
