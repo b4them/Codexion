@@ -6,7 +6,7 @@ SRCS =  $(wildcard src/*.c)
 
 OBJS = ${SRCS:.c=.o}
 
-CC = gcc
+CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread
 
 
