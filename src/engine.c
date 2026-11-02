@@ -6,59 +6,55 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/14 14:55:15 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/06 11:24:34 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/11/02 00:12:44 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/codex.h"
 
-int	ft_satoi(const char *nptr)
-{
-	long	sum;
-	int		sign;
-
-	sum = 0;
-	sign = 1;
-	while (*nptr == ' ' || (*nptr >= 9 && *nptr <= 13))
-		nptr++;
-	if (*nptr == '+' || *nptr == '-')
-	{
-		if (*nptr == '-')
-			sign *= -1;
-		nptr++;
-	}
-	while (*nptr >= '0' && *nptr <= '9')
-	{
-		sum = (sum * 10) + (*nptr - '0');
-		nptr++;
-	}
-	if (*nptr != '\0')
-		return (-1);
-	return (sign * sum);
-}
-
-int	start_sim(t_hub *hub, t_coder *coders)
+static int	spawn_coders(t_hub *hub, t_coder *coders)
 {
 	int	i;
+	int	err;
 
-	hub->start_time = get_time_ms();
 	i = -1;
 	while (++i < hub->n_coders)
 	{
 		coders[i].last_compile = hub->start_time;
 		if (hub->n_coders == 1)
-			pthread_create(&coders[i].thread_id, NULL, lone_coder, &coders[i]);
+			err = pthread_create(&coders[i].thread_id, NULL,
+					lone_coder, &coders[i]);
 		else
-			pthread_create(
-				&coders[i].thread_id, NULL, coder_routine, &coders[i]);
+			err = pthread_create(&coders[i].thread_id, NULL,
+					coder_routine, &coders[i]);
+		if (err != 0)
+			return (i);
 	}
-	if (pthread_create(&hub->monitor_id, NULL, monitor_routine, hub) != 0)
-		return (1);
+	return (i);
+}
+
+int	start_sim(t_hub *hub, t_coder *coders)
+{
+	int	i;
+	int	started;
+	int	failed;
+
+	if (hub->n_compiles == 0)
+		return (0);
+	hub->start_time = get_time_ms();
+	started = spawn_coders(hub, coders);
+	failed = (started != hub->n_coders);
+	if (!failed && pthread_create(
+			&hub->monitor_id, NULL, monitor_routine, hub) != 0)
+		failed = 1;
+	if (failed)
+		stop_sim(hub, -1);
 	i = -1;
-	while (++i < hub->n_coders)
+	while (++i < started)
 		pthread_join(coders[i].thread_id, NULL);
-	pthread_join(hub->monitor_id, NULL);
-	return (0);
+	if (!failed)
+		pthread_join(hub->monitor_id, NULL);
+	return (failed);
 }
 
 void	cleanup_sim(t_hub *hub, t_coder *coders)
@@ -73,7 +69,8 @@ void	cleanup_sim(t_hub *hub, t_coder *coders)
 	pthread_mutex_destroy(&hub->sim_lock);
 	pthread_cond_destroy(&hub->arbitrator_cond);
 	free(hub->dongle_locks);
-	free(hub->queue);
+	free(hub->queues);
+	free(hub->slots);
 	free(hub->dongle_ready);
 	free(coders);
 }

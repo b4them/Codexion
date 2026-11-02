@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 16:11:47 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/05 11:27:42 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/11/02 00:14:12 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,12 @@ long	get_time_ms(void)
 	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-void	ft_usleep(long time_to_sleep)
+void	ft_usleep(long time_to_sleep, t_hub *hub)
 {
 	long	start_time;
 
 	start_time = get_time_ms();
-	while ((get_time_ms() - start_time) < time_to_sleep)
+	while (check_sim_running(hub)
+		&& (get_time_ms() - start_time) < time_to_sleep)
 		usleep(500);
 }

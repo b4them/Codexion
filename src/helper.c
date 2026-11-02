@@ -6,48 +6,17 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/09 12:47:57 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/05 11:29:51 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/11/02 00:13:00 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/codex.h"
-
-int	can_take_dongles(t_coder *coder)
-{
-	long	curr;
-	int		i;
-	t_coder	*other;
-
-	if (coder->hub->dongle_ready[coder->l_dongle] == -1
-		|| coder->hub->dongle_ready[coder->r_dongle] == -1)
-		return (0);
-	curr = get_time_ms();
-	if (curr < coder->hub->dongle_ready[coder->l_dongle]
-		|| curr < coder->hub->dongle_ready[coder->r_dongle])
-		return (0);
-	i = -1;
-	while (++i < coder->hub->q_size)
-	{
-		other = coder->hub->queue[i];
-		if (other != coder && compare_coders(other, coder, coder->hub) == 1)
-		{
-			if (other->l_dongle == coder->l_dongle
-				|| other->r_dongle == coder->l_dongle
-				|| other->l_dongle == coder->r_dongle
-				|| other->r_dongle == coder->r_dongle)
-				return (0);
-		}
-	}
-	return (1);
-}
 
 static int	check_all_compiled(t_hub *hub)
 {
 	int	i;
 	int	finished;
 
-	if (hub->n_compiles == 0)
-		return (0);
 	finished = 0;
 	i = -1;
 	while (++i < hub->n_coders)
@@ -60,7 +29,7 @@ static int	check_all_compiled(t_hub *hub)
 	return (finished == hub->n_coders);
 }
 
-static void	trigger_burnout(t_hub *hub, int id)
+void	stop_sim(t_hub *hub, int id)
 {
 	pthread_mutex_lock(&hub->sim_lock);
 	hub->sim_running = 0;
@@ -85,7 +54,7 @@ static int	check_coder_burnout(t_hub *hub, int i)
 	pthread_mutex_unlock(&hub->sim_lock);
 	if (get_time_ms() - lc > hub->time_to_burnout)
 	{
-		trigger_burnout(hub, hub->coders[i].coder_id);
+		stop_sim(hub, hub->coders[i].coder_id);
 		return (1);
 	}
 	return (0);
@@ -97,7 +66,6 @@ void	*monitor_routine(void *arg)
 	int		i;
 
 	hub = (t_hub *)arg;
-	ft_usleep(10);
 	while (check_sim_running(hub))
 	{
 		i = -1;
@@ -108,7 +76,7 @@ void	*monitor_routine(void *arg)
 		}
 		if (check_all_compiled(hub))
 		{
-			trigger_burnout(hub, -1);
+			stop_sim(hub, -1);
 			return (NULL);
 		}
 		pthread_mutex_lock(&hub->queue_lock);

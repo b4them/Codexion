@@ -6,21 +6,21 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 14:45:19 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/08/03 10:59:38 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/11/02 00:13:33 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/codex.h"
 
-int	compare_coders(t_coder *a, t_coder *b, t_hub *hub)
+int	compare_coders(t_coder *a, t_coder *b)
 {
 	long	deadline_a;
 	long	deadline_b;
 
-	if (hub->scheduler == 1)
+	if (a->hub->scheduler == 1)
 	{
-		deadline_a = a->last_compile + hub->time_to_burnout;
-		deadline_b = b->last_compile + hub->time_to_burnout;
+		deadline_a = a->last_compile + a->hub->time_to_burnout;
+		deadline_b = b->last_compile + b->hub->time_to_burnout;
 		if (deadline_a != deadline_b)
 			return (deadline_a < deadline_b);
 		return (a->request_ticket < b->request_ticket);
@@ -28,15 +28,14 @@ int	compare_coders(t_coder *a, t_coder *b, t_hub *hub)
 	return (a->request_ticket < b->request_ticket);
 }
 
-void	push_queue(t_hub *hub, t_coder *coder)
+void	heap_push(t_queue *q, t_coder *coder)
 {
-	coder->request_ticket = hub->ticket_counter++;
-	hub->queue[hub->q_size] = coder;
-	heapify_up(hub, hub->q_size);
-	hub->q_size++;
+	q->items[q->size] = coder;
+	heapify_up(q, q->size);
+	q->size++;
 }
 
-void	heapify_up(t_hub *hub, int index)
+void	heapify_up(t_queue *q, int index)
 {
 	int		parent;
 	t_coder	*temp;
@@ -44,11 +43,11 @@ void	heapify_up(t_hub *hub, int index)
 	while (index > 0)
 	{
 		parent = (index - 1) / 2;
-		if (compare_coders(hub->queue[index], hub->queue[parent], hub) == 1)
+		if (compare_coders(q->items[index], q->items[parent]) == 1)
 		{
-			temp = hub->queue[index];
-			hub->queue[index] = hub->queue[parent];
-			hub->queue[parent] = temp;
+			temp = q->items[index];
+			q->items[index] = q->items[parent];
+			q->items[parent] = temp;
 			index = parent;
 		}
 		else
@@ -56,49 +55,47 @@ void	heapify_up(t_hub *hub, int index)
 	}
 }
 
-void	remove_queue(t_hub *hub, t_coder *coder)
+void	heap_remove(t_queue *q, t_coder *coder)
 {
 	int	i;
 
-	if (hub->q_size == 0)
-		return ;
 	i = -1;
-	while (++i < hub->q_size)
+	while (++i < q->size)
 	{
-		if (hub->queue[i] == coder)
+		if (q->items[i] == coder)
 		{
-			hub->q_size--;
-			hub->queue[i] = hub->queue[hub->q_size];
-			if (i < hub->q_size)
+			q->size--;
+			q->items[i] = q->items[q->size];
+			if (i < q->size)
 			{
-				heapify_up(hub, i);
-				heapify_down(hub, i);
+				heapify_up(q, i);
+				heapify_down(q, i);
 			}
 			return ;
 		}
 	}
 }
 
-void	heapify_down(t_hub *hub, int index)
+void	heapify_down(t_queue *q, int index)
 {
 	int		left;
 	int		right;
 	int		highest;
 	t_coder	*temp;
 
-	while ((2 * index + 1) < hub->q_size)
+	while ((2 * index + 1) < q->size)
 	{
 		left = 2 * index + 1;
 		right = 2 * index + 2;
 		highest = left;
-		if (right < hub->q_size && compare_coders(
-				hub->queue[right], hub->queue[left], hub) == 1)
+		if (right < q->size
+			&& compare_coders(q->items[right], q->items[left]) == 1)
 			highest = right;
-		if (compare_coders(hub->queue[highest], hub->queue[index], hub) == 1)
+		if (compare_coders(q->items[highest], q->items[index]) == 1)
 		{
-			temp = hub->queue[index];
-			hub->queue[index] = hub->queue[highest];
-			hub->queue[highest] = temp;
+			temp = q->items[index];
+			q->items[index] = q->items[highest];
+			q->items[highest] = temp;
 			index = highest;
 		}
 		else

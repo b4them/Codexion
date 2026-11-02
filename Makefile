@@ -1,8 +1,28 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2026/11/02 00:15:52 by bmoura-s          #+#    #+#              #
+#    Updated: 2026/11/02 00:15:59 by bmoura-s         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME = codexion
 
 INC = -I ./includes
 
-SRCS =  $(wildcard src/*.c)
+SRCS = src/actions.c \
+	src/arbiter.c \
+	src/engine.c \
+	src/helper.c \
+	src/main.c \
+	src/parse.c \
+	src/queue.c \
+	src/routine.c \
+	src/time.c
 
 OBJS = ${SRCS:.c=.o}
 
@@ -18,12 +38,15 @@ ${NAME}: ${OBJS}
 %.o: %.c
 	${CC} ${CFLAGS} ${INC} -c $< -o $@
 
+${OBJS}: includes/codex.h
+
 clean:
 	rm -f ${OBJS}
 
 fclean: clean
 	rm -f ${NAME}
 
-re: fclean all
+re: fclean
+	${MAKE} all
 
 .PHONY: all clean fclean re
