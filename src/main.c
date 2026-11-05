@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/07 16:05:27 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/11/02 00:13:14 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/11/03 13:16:30 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,18 +92,18 @@ int	main(int ac, char **av)
 	int		ret;
 
 	if (ac != 9)
-		return (print_error("expected 8 arguments: number_of_coders "
+		return (print_error("Expected 8 arguments: number_of_coders "
 				"time_to_burnout time_to_compile time_to_debug "
 				"time_to_refactor number_of_compiles_required "
 				"dongle_cooldown scheduler(fifo|edf)"));
 	if (init_hub(&hub, av) != 0)
-		return (print_error("invalid arguments (non-negative integers, "
-				"at least 1 coder, scheduler must be fifo or edf)"));
+		return (print_error("Invalid arguments (non-negative integers, "
+				"at least 1 coder, scheduler must be fifo or edf)."));
 	if (init_coders(&hub, &coders) != 0)
-		return (print_error("failed to initialize coders"));
+		return (print_error("Failed to initialize coders."));
 	ret = start_sim(&hub, coders);
 	if (ret != 0)
-		print_error("simulation failed to start");
+		print_error("Simulation failed to start.");
 	cleanup_sim(&hub, coders);
 	return (ret);
 }

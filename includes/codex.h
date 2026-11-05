@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/09 12:48:25 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/11/02 00:12:07 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/11/05 12:27:46 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,8 @@ void	print_log(t_coder *coder, char *status);
 void	drop_dongles(t_coder *coder);
 void	do_compile(t_coder *coder);
 int		can_take_dongles(t_coder *coder);
+long	next_ready_time(t_coder *coder);
+void	wait_turn(t_coder *coder);
 int		take_dongles(t_coder *coder);
 void	*monitor_routine(void *arg);
 void	stop_sim(t_hub *hub, int id);

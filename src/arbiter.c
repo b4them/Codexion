@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/02 00:14:58 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/11/02 01:13:07 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/11/05 12:35:12 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,4 +52,23 @@ int	can_take_dongles(t_coder *coder)
 		return (0);
 	return (hub->queues[coder->l_dongle].items[0] == coder
 		&& hub->queues[coder->r_dongle].items[0] == coder);
+}
+
+long	next_ready_time(t_coder *coder)
+{
+	t_hub	*hub;
+	long	left;
+	long	right;
+
+	hub = coder->hub;
+	left = hub->dongle_ready[coder->l_dongle];
+	right = hub->dongle_ready[coder->r_dongle];
+	if (left == -1 || right == -1)
+		return (-1);
+	if (hub->queues[coder->l_dongle].items[0] != coder
+		|| hub->queues[coder->r_dongle].items[0] != coder)
+		return (-1);
+	if (left > right)
+		return (left);
+	return (right);
 }

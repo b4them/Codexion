@@ -6,7 +6,7 @@
 /*   By: bmoura-s <bmoura-s@42Porto.student.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/02 00:14:32 by bmoura-s          #+#    #+#             */
-/*   Updated: 2026/11/02 01:13:02 by bmoura-s         ###   ########.fr       */
+/*   Updated: 2026/11/05 12:34:46 by bmoura-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,24 @@ void	drop_dongles(t_coder *coder)
 	pthread_mutex_unlock(&coder->hub->dongle_locks[coder->l_dongle]);
 }
 
+static void	log_compile(t_coder *coder)
+{
+	long	now;
+
+	pthread_mutex_lock(&coder->hub->print_lock);
+	if (check_sim_running(coder->hub))
+	{
+		now = get_time_ms() - coder->hub->start_time;
+		printf("%ld %d has taken a dongle\n", now, coder->coder_id);
+		printf("%ld %d has taken a dongle\n", now, coder->coder_id);
+		printf("%ld %d is compiling\n", now, coder->coder_id);
+	}
+	pthread_mutex_unlock(&coder->hub->print_lock);
+}
+
 void	do_compile(t_coder *coder)
 {
-	print_log(coder, "has taken a dongle");
-	print_log(coder, "has taken a dongle");
-	print_log(coder, "is compiling");
+	log_compile(coder);
 	pthread_mutex_lock(&coder->hub->sim_lock);
 	coder->last_compile = get_time_ms();
 	pthread_mutex_unlock(&coder->hub->sim_lock);
@@ -41,4 +54,17 @@ void	do_compile(t_coder *coder)
 	coder->compiles++;
 	pthread_mutex_unlock(&coder->hub->sim_lock);
 	drop_dongles(coder);
+}
+
+void	wait_turn(t_coder *coder)
+{
+	if (next_ready_time(coder) < 0)
+	{
+		pthread_cond_wait(&coder->hub->arbitrator_cond,
+			&coder->hub->queue_lock);
+		return ;
+	}
+	pthread_mutex_unlock(&coder->hub->queue_lock);
+	usleep(100);
+	pthread_mutex_lock(&coder->hub->queue_lock);
 }
